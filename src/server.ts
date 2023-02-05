@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import joi from "joi";
 
 dotenv.config();
 const app = express();
@@ -27,6 +28,13 @@ let planets: Planets = [
   },
 ];
 
+const createScheme = joi.object({
+  id: joi.number().integer().required(),
+  name: joi.string().required(),
+});
+const updateScheme = joi.object({
+  name: joi.string().required(),
+});
 app.get("/api/planets", (req, res) => {
   res.send(planets);
 });
@@ -41,7 +49,12 @@ app.get("/api/planets/:id", (req, res) => {
 app.post("/api/planets", (req, res) => {
   const { id, name } = req.body;
   const newPlanet = { id, name };
+  const validatedPlanet = createScheme.validate(newPlanet);
 
+  if (validatedPlanet.error) {
+    res.status(400).json({ msg: validatedPlanet.error });
+    return;
+  }
   planets = [...planets, newPlanet];
   res.status(200).json({ msg: "New planet created successfully" });
 });
@@ -49,7 +62,12 @@ app.post("/api/planets", (req, res) => {
 app.put("/api/planets/:id", (req, res) => {
   const { name } = req.body;
   const { id } = req.params;
+  const validatedUpdate = updateScheme.validate({ name });
 
+  if (validatedUpdate.error) {
+    res.status(400).json({ msg: validatedUpdate.error });
+    return;
+  }
   planets = planets.map((p) => (p.id === Number(id) ? { ...p, name } : p));
 
   res.status(200).json({ msg: "New planet was updated successfully" });
