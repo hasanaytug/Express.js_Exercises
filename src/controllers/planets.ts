@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import joi from "joi";
-import { db } from "../db.js";
+import db from "../db.js";
 
 const createScheme = joi.object({
   name: joi.string().required(),

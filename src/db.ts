@@ -29,4 +29,4 @@ const setupDb = async () => {
 };
 setupDb();
 
-export { db };
+export default db;

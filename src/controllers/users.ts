@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { db } from "../db.js";
+import db from "../db.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
@@ -46,4 +46,15 @@ const login = async (req: Request, res: Response) => {
   res.status(400).json({ msg: "Wrong credentials" });
 };
 
-export { getUsers, signUp, login };
+const logout = async (req: Request, res: Response) => {
+  const user: any = req.user;
+  if (user) {
+    console.log("user exists: ");
+    await db.none(`UPDATE users SET token = $2 WHERE id = $1`, [user.id, null]);
+    res.status(200).json({ msg: "logout successful" });
+    return;
+  }
+  console.log("User not found");
+};
+
+export { getUsers, signUp, login, logout };
